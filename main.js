@@ -1,43 +1,45 @@
 // ==UserScript==
-// @name         YouTube Karaoke Lyrics Overlay (Substring Timing)
+// @name         YouTube Karaoke Lyrics Overlay
 // @namespace    http://tampermonkey.net/
-// @version      1.5
-// @description  Karaoke subtitles with per-substring highlighting and draggable overlay (TrustedHTML-safe version)
-// @author       You
+// @version      1.6
+// @description  Load karaoke lyrics from external JSON file with timed substrings, draggable, TrustedHTML-safe overlay for YouTube karaoke syncing 🎤✨
+// @author       Edu
 // @match        https://www.youtube.com/watch*
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @connect      localhost
 // ==/UserScript==
 
 (function () {
   'use strict';
 
-  const lyrics = [
-    {
-      start: 2.0,
-      end: 6.0,
-      parts: [
-          { text: 'ね', time: 2.0 },
-          { text: 'が', time: 2.3 },
-          { text: 'い', time: 2.5 },
-          { text: 'を ', time: 2.8 },
-          { text: 'こめて', time: 3.0 }
-      ]
-    },
-    {
-      start: 6.1,
-      end: 10.0,
-      parts: [
-        { text: 'Living ', time: 6.1 },
-        { text: 'in ', time: 6.6 },
-        { text: 'a ', time: 7.0 },
-        { text: 'lonely ', time: 7.2 },
-        { text: 'world', time: 7.7 }
-      ]
-    },
-    // Add more lines here...
-  ];
+  // Currently I have to open a python server in my project folder
+  const LYRICS_URL = 'http://localhost:8000/lyrics/sample.json';
 
+  let lyrics = [];
   let subtitleDiv = null;
+
+  function fetchLyrics(callback) {
+    GM_xmlhttpRequest({
+      method: 'GET',
+      url: LYRICS_URL,
+      onload: function (response) {
+        try {
+          const data = JSON.parse(response.responseText);
+          if (Array.isArray(data)) {
+            lyrics = data;
+            callback();
+          } else {
+            console.error('Invalid lyrics format.');
+          }
+        } catch (err) {
+          console.error('Failed to parse lyrics JSON:', err);
+        }
+      },
+      onerror: function (err) {
+        console.error('Failed to load lyrics:', err);
+      }
+    });
+  }
 
   function createSubtitleDiv() {
     subtitleDiv = document.createElement('div');
@@ -107,7 +109,7 @@
   }
 
   function buildTimedLine(parts, currentTime) {
-    subtitleDiv.textContent = ''; // Clear old content
+    subtitleDiv.textContent = '';
 
     for (const part of parts) {
       const span = document.createElement('span');
@@ -134,13 +136,13 @@
   }
 
   function startInterval() {
-    setInterval(updateSubtitles, 50); // More precise now
+    setInterval(updateSubtitles, 50);
   }
 
   function waitForVideoAndInit() {
     const checkExist = setInterval(() => {
       const video = getCurrentVideo();
-      if (video) {
+      if (video && lyrics.length > 0) {
         clearInterval(checkExist);
         if (!document.getElementById('karaoke-subtitles')) {
           createSubtitleDiv();
@@ -150,6 +152,5 @@
     }, 500);
   }
 
-  window.addEventListener('load', waitForVideoAndInit);
+  fetchLyrics(waitForVideoAndInit);
 })();
-

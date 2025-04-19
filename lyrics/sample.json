@@ -1,0 +1,25 @@
+[
+    {
+      "start": 2.0,
+      "end": 6.0,
+      "parts": [
+        { "text": "Just ", "time": 2.0 },
+        { "text": "a ", "time": 2.5 },
+        { "text": "small ", "time": 3.0 },
+        { "text": "town ", "time": 3.5 },
+        { "text": "girl", "time": 4.0 }
+      ]
+    },
+    {
+      "start": 6.1,
+      "end": 10.0,
+      "parts": [
+        { "text": "Living ", "time": 6.1 },
+        { "text": "in ", "time": 6.6 },
+        { "text": "a ", "time": 7.0 },
+        { "text": "lonely ", "time": 7.2 },
+        { "text": "world", "time": 7.7 }
+      ]
+    }
+  ]
+  
